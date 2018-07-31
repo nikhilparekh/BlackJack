@@ -29,10 +29,11 @@ def load_images(card_images):
 
 def deal_card(frame):
     next_card = deck.pop(0)
+    deck.append(next_card)
     tkinter.Label(frame, image=next_card[1], relief='raised').pack(side='left')
     return next_card
 
-
+ 
 def score_hand(hand):
     score = 0
     ace = False
@@ -50,9 +51,11 @@ def score_hand(hand):
 
 
 def deal_dealer():
-    dealer_hand.append(deal_card(dealer_card_frame))
     dealer_score = score_hand(dealer_hand)
-    dealer_score_label.set(dealer_score)
+    while 0 < dealer_score < 17:
+        dealer_hand.append(deal_card(dealer_card_frame))
+        dealer_score = score_hand(dealer_hand)
+        dealer_score_label.set(dealer_score)
 
     player_score = score_hand(player_hand)
     if player_score > 21:
@@ -65,8 +68,10 @@ def deal_dealer():
         result_text.set("Its a draw!!")
 
 def deal_player():
-    player_hand.append(deal_card(player_card_frame))
-    player_score = score_hand(player_hand)
+    player_score = score_hand(player_hand) 
+    if player_score <= 21:
+        player_hand.append(deal_card(player_card_frame))
+        player_score = score_hand(player_hand)
 
     player_score_label.set(player_score)
     if player_score > 21:
@@ -85,6 +90,32 @@ def deal_player():
     # if player_score > 21:
     #     result_text("Dealer Wins...")
         
+def new_game():
+    global dealer_card_frame
+    global player_card_frame
+    global player_hand
+    global dealer_hand
+
+    dealer_card_frame.destroy()
+    dealer_card_frame = tkinter.Frame(card_frame, background='green')
+    dealer_card_frame.grid(row=0, column=1, sticky='ew', rowspan=2)
+
+    player_card_frame.destroy()
+    player_card_frame = tkinter.Frame(card_frame, background="green")
+    player_card_frame.grid(row=2, column=1, sticky="ew", rowspan=2)
+
+    result_text.set('')
+
+    player_hand = []
+    dealer_hand = []
+
+    deal_player()
+    dealer_hand.append(deal_card(dealer_card_frame))
+    dealer_score_label.set(score_hand(dealer_hand))
+    deal_player()
+
+
+    
 
 
 mainWindow.title("Black Jack")
@@ -121,6 +152,8 @@ dealer_button.grid(row=0, column=0)
 player_button = tkinter.Button(button_frame, text="Player", command=deal_player)
 player_button.grid(row=0,column=1)
 
+new_game_button = tkinter.Button(button_frame, text="New Game", command=new_game)
+new_game_button.grid(row=0,column=2)
 cards = []
 load_images(cards)
 print(cards)
@@ -132,6 +165,7 @@ dealer_hand = []
 
 deal_player()
 dealer_hand.append(deal_card(dealer_card_frame))
+dealer_score_label.set(score_hand(dealer_hand))
 deal_player()
 
-mainWindow.mainloop()
+mainWindow.mainloop() 
